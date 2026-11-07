@@ -57,7 +57,17 @@ const {
   FRONTEND_URL      = "http://localhost:5173",
 } = process.env;
 
-const CORS_ORIGINS = [FRONTEND_URL, "http://localhost:3000", "http://localhost:5173"].filter(Boolean);
+const configuredOrigins = (FRONTEND_URL || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const CORS_ORIGINS = [
+  ...configuredOrigins,
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+].filter(Boolean);
 const BANK_NAME = { "001": "ACLEDA", "002": "ABA", "009": "WING" }[BAKONG_BANK_CODE] ?? "ABA";
 
 /* ✅ Validate env at boot — fail fast on startup, not at runtime */
@@ -70,7 +80,7 @@ const ok = z.object({
   BAKONG_API_URL:    z.string().url().default("https://api-bakong.nbc.gov.kh"),
   WEBHOOK_SECRET:    z.string().min(1).default("dev-webhook-secret-change-me"),
   API_KEY:           z.string().min(1).default("dev-api-key-change-me"),
-  FRONTEND_URL:      z.string().url().default("http://localhost:5173"),
+  FRONTEND_URL:      z.string().default("http://localhost:5173"),
 }).safeParse(process.env);
 if (!ok.success) {
   for (const i of ok.error.issues) console.error("❌ ENV:", i.path.join("."), i.message);
@@ -124,8 +134,36 @@ const PaymentLog = mongoose.model("PaymentLog", logSchema);
  ══════════════════════════════════════════════════════════════════════════════ */
 const app = express();
 app.use(helmet());
-app.use(cors({ origin: CORS_ORIGINS }));
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (CORS_ORIGINS.includes(origin) || origin.endsWith(".vercel.app")) {
+      return callback(null, true);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+}));
 app.use(express.json({ limit: "64kb" }));
+
+let isConnected = false;
+async function connectDb() {
+  if (isConnected || mongoose.connection.readyState >= 1) {
+    return;
+  }
+  await mongoose.connect(MONGODB_URI);
+  isConnected = true;
+}
+
+// Serverless DB connection middleware
+app.use(async (_req, _res, next) => {
+  try {
+    await connectDb();
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
 
 /** 🔐 Bearer-token guard — skipped in sandbox/dev mode */
 function bearerGuard(req, res, next) {
@@ -447,7 +485,7 @@ function crc16(str) {
 }
 
 async function start() {
-  await mongoose.connect(MONGODB_URI);
+  await connectDb();
   console.log(`[MongoDB] ${mongoose.connection.name}  bank=${BANK_NAME}  env=${NODE_ENV}`);
 
   app.listen(PORT, () => {
@@ -460,11 +498,24 @@ async function start() {
 
   /* ── expiry watchdog: mark expired PENDING rows every 5 min ─────────── */
   cron.schedule("*/5 * * * *", async () => {
-    const { modifiedCount } = await Payments.updateMany(
-      { status: "PENDING", expiresAt: { $lt: new Date() } },
-      { $set: { status: "EXPIRED" } }
-    );
-    if (modifiedCount) console.log(`[CRON] expired ${modifiedCount} payment(s)`);
+    try {
+      const { modifiedCount } = await Payments.updateMany(
+        { status: "PENDING", expiresAt: { $lt: new Date() } },
+        { $set: { status: "EXPIRED" } }
+      );
+      if (modifiedCount) console.log(`[CRON] expired ${modifiedCount} payment(s)`);
+    } catch (err) {
+      console.error("[CRON]", err);
+    }
   });
 }
-start().catch((e) => { console.error("[BOOT]", e); process.exit(1); });
+
+// In local/standalone dev environments, boot and listen.
+// When deployed to Vercel/serverless or in production, do not call listen().
+if (process.env.NODE_ENV !== "production" && !process.env.VERCEL) {
+  start().catch((e) => { console.error("[BOOT]", e); process.exit(1); });
+}
+
+export default app;
+export { app, start };
+

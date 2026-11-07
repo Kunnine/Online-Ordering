@@ -6,8 +6,11 @@ import axios from "axios";
 //   - withXSRFToken is false (no XSRF-TOKEN header is needed)
 // This keeps every /api/* request in the stateless `api` middleware
 // group, which performs NO CSRF verification -> a 419 can never happen.
+const rawApiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api";
+const normalizedBaseUrl = rawApiUrl.endsWith("/api") ? rawApiUrl : `${rawApiUrl.replace(/\/+$/, '')}/api`;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000/api",
+  baseURL: normalizedBaseUrl,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
