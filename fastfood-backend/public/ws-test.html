@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <script src="https://js.pusher.com/8.5.0/pusher.min.js"></script>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <div id="status">Connecting...</div>
+    
+    <script>
+        // Test direct WebSocket connection
+        const ws = new WebSocket('ws://127.0.0.1:8080/app/my-app-key?protocol=7&client=js&version=8.5.0&flash=false');
+        
+        ws.onopen = function() {
+            document.getElementById('status').textContent = 'Connected!';
+            console.log('WebSocket connected');
+        };
+        
+        ws.onerror = function(error) {
+            document.getElementById('status').textContent = 'Error: ' + error.message;
+            console.error('WebSocket error:', error);
+        };
+        
+        ws.onclose = function() {
+            document.getElementById('status').textContent = 'Disconnected';
+            console.log('WebSocket disconnected');
+        };
+        
+        ws.onmessage = function(event) {
+            console.log('Received:', event.data);
+        };
+    </script>
+</body>
+</html>

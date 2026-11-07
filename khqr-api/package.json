@@ -1,0 +1,26 @@
+{
+  "name": "khqr-api",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Bakong KHQR payment gateway — Express microservice for FastFood Cambodia",
+  "main": "server.js",
+  "scripts": {
+    "start":    "node server.js",
+    "dev":      "node --watch server.js",
+    "sandbox":  "NODE_ENV=development node server.js"
+  },
+  "dependencies": {
+    "bakong-khqr": "^1.0.12",
+    "cors":        "^2.8.5",
+    "dotenv":      "^16.4.7",
+    "express":     "^4.21.1",
+    "helmet":      "^7.1.0",
+    "mongoose":    "^8.8.4",
+    "node-cron":   "^3.0.3",
+    "qrcode": "^1.5.0",
+    "zod":         "^3.23.8"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

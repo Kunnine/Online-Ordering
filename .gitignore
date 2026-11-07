@@ -1,0 +1,65 @@
+# ==============================================================================
+# Root .gitignore for Online_Ordering
+# ==============================================================================
+
+# Dependencies
+node_modules/
+**/node_modules/
+vendor/
+**/vendor/
+
+# Environment files & Secrets
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Build outputs
+dist/
+**/dist/
+dist-ssr/
+**/dist-ssr/
+public/build/
+public/hot/
+public/storage/
+
+# Laravel Storage & Framework Cache
+storage/*.key
+storage/logs/*.log
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+fastfood-backend/storage/*.key
+fastfood-backend/storage/logs/*.log
+fastfood-backend/storage/framework/cache/*
+fastfood-backend/storage/framework/sessions/*
+fastfood-backend/storage/framework/views/*
+!fastfood-backend/storage/app/.gitignore
+!fastfood-backend/storage/framework/.gitignore
+!fastfood-backend/storage/logs/.gitignore
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Database & SQLite files
+*.sqlite
+*.sqlite3
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+Homestead.json
+Homestead.yaml
