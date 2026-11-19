@@ -12,9 +12,10 @@ php artisan storage:link --force || true
 # Run database migrations on start
 php artisan migrate --force || true
 
-# Ensure only single MPM module (prefork) is enabled for Apache
+# Ensure only single MPM module (prefork) is enabled for Apache and suppress ServerName warning
 a2dismod -f mpm_event mpm_worker 2>/dev/null || true
 a2enmod mpm_prefork
+grep -q "ServerName" /etc/apache2/apache2.conf 2>/dev/null || echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Adapt Apache port to dynamic PORT environment variable (default 80)
 PORT="${PORT:-80}"
