@@ -251,8 +251,9 @@
             </div>
         </div>
 
-        <div class="actions-label">Backend Endpoints & Tools:</div>
+        <div class="actions-label">Access Applications & Endpoints:</div>
         <div class="btn-group">
+            <a href="{{ $frontendUrl }}" class="btn btn-primary" target="_blank">🛒 Open FastFood Store & Demo Login</a>
             <a href="/api/health" class="btn btn-secondary" target="_blank">🩺 Health Check</a>
             <a href="/api/products" class="btn btn-secondary" target="_blank">📦 Products JSON</a>
             <a href="/api/categories" class="btn btn-secondary" target="_blank">📁 Categories JSON</a>
