@@ -15,14 +15,15 @@
     </div>
 
     <script>
-        window.Echo = window.Echo || {};
-        // Listen for order status updates
-        window.Echo.channel('order-updates')
-            .listen('OrderStatusUpdated', (event) => {
-                console.log('Order status updated:', event);
-                // Update UI or refresh stats
-                window.location.reload();
-            });
+        if (window.Echo && typeof window.Echo.channel === 'function') {
+            // Listen for order status updates
+            window.Echo.channel('order-updates')
+                .listen('OrderStatusUpdated', (event) => {
+                    console.log('Order status updated:', event);
+                    // Update UI or refresh stats
+                    window.location.reload();
+                });
+        }
     </script>
 </body>
 </html>
