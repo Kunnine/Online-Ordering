@@ -32,6 +32,8 @@ return [
         '~^http://localhost:\d+$~',
         '~^http://127\.0\.0\.1:\d+$~',
         '~^https://.*\.vercel\.app$~',
+        '~^https://.*\.railway\.app$~',
+        '~^https://.*\.up\.railway\.app$~',
     ],
 
     'allowed_headers' => ['*'],
